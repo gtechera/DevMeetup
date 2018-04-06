@@ -123,7 +123,6 @@ export default {
         description: this.description,
         imageURL: this.imageURL,
         date: this.date,
-        id: 'añldhsfaouywserlkjahdf9876yewr',
         time: this.time
       }
       this.$store.dispatch('createMeetup', meetupData)

@@ -6,57 +6,15 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
-    loadedMeetups: [
-      {
-        imageURL:
-          'https://images.pexels.com/photos/40142/new-york-skyline-manhattan-hudson-40142.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-        id: 'asjñdfasodurfaqswer8975897',
-        title: 'Meetup in New York',
-        location: 'New York City Hall',
-        date: '2018-07-18',
-        time: '11:00',
-        description:
-          'This is the description of the New York meeting. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est reprehenderit, alias assumenda nihil tenetur accusantium magni omnis? Assumenda, aspernatur veniam?'
-      },
-      {
-        imageURL:
-          'https://images.pexels.com/photos/275606/pexels-photo-275606.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-        id: 'asjñdfasodurfaqswer897543545897',
-        title: 'Meetup in Boston',
-        location: 'Boston Market',
-        date: '2018-08-19',
-        time: '13:00',
-        description:
-          'This is the description of the Boston meeting. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est reprehenderit, alias assumenda nihil tenetur accusantium magni omnis? Assumenda, aspernatur veniam?'
-      },
-      {
-        imageURL:
-          'https://images.pexels.com/photos/421655/pexels-photo-421655.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-        id: 'asjñdf554544asodurfaqswer8975897',
-        title: 'Meetup in Miami',
-        location: 'Miami Center',
-        date: '2018-04-10',
-        time: '15:00',
-        description:
-          'This is the description of the Miami meeting. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est reprehenderit, alias assumenda nihil tenetur accusantium magni omnis? Assumenda, aspernatur veniam?'
-      },
-      {
-        imageURL:
-          'https://images.pexels.com/photos/462219/pexels-photo-462219.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-        id: 'asjñdfasodu345987sg897rfaqswer8975897',
-        title: 'Meetup in Los Angeles',
-        location: 'Los Angeles Center',
-        date: '2018-09-28',
-        time: '08:00',
-        description:
-          'This is the description of the Pittsburgh meeting. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Est reprehenderit, alias assumenda nihil tenetur accusantium magni omnis? Assumenda, aspernatur veniam?'
-      }
-    ],
+    loadedMeetups: [],
     user: null,
     loading: false,
     error: null
   },
   mutations: {
+    setLoadedMeetups(state, payload) {
+      state.loadedMeetups = payload
+    },
     createMeetup(state, payload) {
       state.loadedMeetups.push(payload)
     },
@@ -74,7 +32,39 @@ export const store = new Vuex.Store({
     }
   },
   actions: {
-    createMeetup({ commit }, payload) {
+    loadMeetups({ commit, getters }) {
+      commit('setLoading', true)
+      //Reach out firebase
+      firebase
+        .database()
+        .ref('meetups')
+        .once('value')
+        .then(data => {
+          const meetups = []
+          const obj = data.val()
+          for (let key in obj) {
+            if (getters.user.id === obj[key].creatorId) {
+              meetups.push({
+                id: key,
+                title: obj[key].title,
+                location: obj[key].location,
+                imageURL: obj[key].imageURL,
+                description: obj[key].description,
+                date: obj[key].date,
+                time: obj[key].time,
+                creatorId: obj[key].creatorId
+              })
+            }
+          }
+          commit('setLoadedMeetups', meetups)
+          commit('setLoading', false)
+        })
+        .catch(error => {
+          commit('setLoading', false)
+          console.log(error)
+        })
+    },
+    createMeetup({ commit, getters }, payload) {
       const meetup = {
         title: payload.title,
         location: payload.location,
@@ -82,10 +72,21 @@ export const store = new Vuex.Store({
         description: payload.description,
         date: payload.date,
         time: payload.time,
-        id: payload.id
+        creatorId: getters.user.id
       }
       //Reach out to Firebase and store Meetup
-      commit('createMeetup', meetup)
+      firebase
+        .database()
+        .ref('meetups')
+        .push(meetup)
+        .then(data => {
+          //Create meetup in store
+          const key = data.key
+          commit('createMeetup', { ...meetup, id: key })
+        })
+        .catch(error => {
+          console.log(error)
+        })
     },
     signUpUser({ commit }, payload) {
       commit('setLoading', true)
@@ -123,6 +124,13 @@ export const store = new Vuex.Store({
           commit('setError', error)
           console.log(error)
         })
+    },
+    autoSignIn({ commit }, payload) {
+      commit('setUser', { id: payload.uid, registeredMeetups: [] })
+    },
+    logout({ commit }) {
+      firebase.auth().signOut()
+      commit('setUser', null)
     },
     clearError({ commit }) {
       commit('clearError')

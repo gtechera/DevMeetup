@@ -1,14 +1,23 @@
 <template>
 <v-container>
 <v-layout row wrap class="mb-2">
-<v-flex xs12 sm6 class="text-sm-right text-xs-center">
-<v-btn large router to="/meetups" class="info teal darken-1">Explore Meetups</v-btn>
-</v-flex>
-<v-flex xs12 sm6 class="text-sm-left text-xs-center">
-<v-btn large router to="/meetup/new" class="info teal darken-1">Organize Meetup</v-btn>
-</v-flex>
+  <v-flex xs12 sm6 class="text-sm-right text-xs-center">
+    <v-btn large router to="/meetups" class="info teal darken-1">Explore Meetups</v-btn>
+  </v-flex>
+  <v-flex xs12 sm6 class="text-sm-left text-xs-center">
+    <v-btn large router to="/meetup/new" class="info teal darken-1">Organize Meetup</v-btn>
+  </v-flex>
 </v-layout>
-<v-layout row wrap>
+<v-layout row wrap class="mt-2">
+  <v-flex xs12 sm6 class="text-xs-center text-sm-center text-md-center text-lg-center">
+    <v-progress-circular indeterminate 
+    color="primary" 
+    :width="7"
+    :size="70"
+    v-if="loading"></v-progress-circular>
+  </v-flex>
+</v-layout>
+<v-layout row wrap  v-if="!loading">
   <v-flex xs12>
   <v-carousel style="cursor: pointer;">
     <v-carousel-item v-for="(item,i) in meetups" :src="item.imageURL" :key="i" 
@@ -34,6 +43,9 @@ export default {
   computed: {
     meetups() {
       return this.$store.getters.featuredMeetups
+    },
+    loading() {
+      return this.$store.getters.loading
     }
   },
   methods: {
