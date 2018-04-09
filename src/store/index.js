@@ -18,6 +18,26 @@ export const store = new Vuex.Store({
     createMeetup(state, payload) {
       state.loadedMeetups.push(payload)
     },
+    updateMeetup(state, payload) {
+      const meetup = state.loadedMeetups.find(meetup => {
+        return meetup.id === payload.id
+      })
+      if (payload.title) {
+        meetup.title = payload.title
+      }
+      if (payload.location) {
+        meetup.location = payload.location
+      }
+      if (payload.description) {
+        meetup.description = payload.description
+      }
+      if (payload.date) {
+        meetup.date = payload.date
+      }
+      if (payload.time) {
+        meetup.time = payload.time
+      }
+    },
     setUser(state, payload) {
       state.user = payload
     },
@@ -68,24 +88,77 @@ export const store = new Vuex.Store({
       const meetup = {
         title: payload.title,
         location: payload.location,
-        imageURL: payload.imageURL,
         description: payload.description,
         date: payload.date,
         time: payload.time,
         creatorId: getters.user.id
       }
       //Reach out to Firebase and store Meetup
+      let key
+      let imageUrl
       firebase
         .database()
         .ref('meetups')
         .push(meetup)
         .then(data => {
           //Create meetup in store
-          const key = data.key
-          commit('createMeetup', { ...meetup, id: key })
+          key = data.key
+          return key
+        })
+        .then(key => {
+          const filename = payload.image.name
+          const ext = filename.slice(filename.lastIndexOf('.'))
+          return firebase
+            .storage()
+            .ref('meetups/' + key + '.' + ext)
+            .put(payload.image)
+        })
+        .then(fileData => {
+          imageUrl = fileData.metadata.downloadURLs[0]
+          return firebase
+            .database()
+            .ref('meetups')
+            .child(key)
+            .update({ imageURL: imageUrl })
+        })
+        .then(() => {
+          commit('createMeetup', { ...meetup, imageURL: imageUrl, id: key })
         })
         .catch(error => {
           console.log(error)
+        })
+    },
+    updateMeetupData({ commit }, payload) {
+      commit('setLoading', true)
+      commit('clearError')
+      const updateObj = {}
+      if (payload.title) {
+        updateObj.title = payload.title
+      }
+      if (payload.location) {
+        updateObj.location = payload.location
+      }
+      if (payload.description) {
+        updateObj.description = payload.description
+      }
+      if (payload.date) {
+        updateObj.date = payload.date
+      }
+      if (payload.time) {
+        updateObj.time = payload.time
+      }
+      firebase
+        .database()
+        .ref('meetups')
+        .child(payload.id)
+        .update(updateObj)
+        .then(() => {
+          commit('setLoading', false)
+          commit('updateMeetup', payload)
+        })
+        .catch(error => {
+          console.log(error)
+          commit('setLoading', false)
         })
     },
     signUpUser({ commit }, payload) {

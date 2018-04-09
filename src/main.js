@@ -8,6 +8,7 @@ import { store } from './store'
 import colors from 'vuetify/es5/util/colors'
 import DateFilter from './filter/date'
 import AlertCmp from './components/Shared/Alert.vue'
+import EditMeetupDialog from './components/Meetup/Edit/EditMeetupDialog.vue'
 
 Vue.use(Vuetify, {
   theme: {
@@ -24,6 +25,8 @@ Vue.filter('date', DateFilter)
 
 Vue.component('app-alert', AlertCmp)
 
+Vue.component('app-edit-meetup-dialog', EditMeetupDialog)
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -36,7 +39,7 @@ new Vue({
       authDomain: 'gt-devmeetup.firebaseapp.com',
       databaseURL: 'https://gt-devmeetup.firebaseio.com',
       projectId: 'gt-devmeetup',
-      storageBucket: 'gt-devmeetup.appspot.com',
+      storageBucket: 'gs://gt-devmeetup.appspot.com',
       messagingSenderId: '33337102133'
     })
     firebase.auth().onAuthStateChanged(user => {
