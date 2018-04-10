@@ -9,6 +9,9 @@ import colors from 'vuetify/es5/util/colors'
 import DateFilter from './filter/date'
 import AlertCmp from './components/Shared/Alert.vue'
 import EditMeetupDialog from './components/Meetup/Edit/EditMeetupDialog.vue'
+import EditMeetupDateDialog from './components/Meetup/Edit/EditMeetupDateDialog.vue'
+import EditMeetupTimeDialog from './components/Meetup/Edit/EditMeetupTimeDialog.vue'
+import RegisterDialog from './components/Meetup/Registration/RegisterDialog.vue'
 
 Vue.use(Vuetify, {
   theme: {
@@ -26,6 +29,12 @@ Vue.filter('date', DateFilter)
 Vue.component('app-alert', AlertCmp)
 
 Vue.component('app-edit-meetup-dialog', EditMeetupDialog)
+
+Vue.component('app-edit-meetup-date-dialog', EditMeetupDateDialog)
+
+Vue.component('app-edit-meetup-time-dialog', EditMeetupTimeDialog)
+
+Vue.component('app-meetup-register-dialog', RegisterDialog)
 
 /* eslint-disable no-new */
 new Vue({

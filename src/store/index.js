@@ -12,6 +12,23 @@ export const store = new Vuex.Store({
     error: null
   },
   mutations: {
+    registerUserForMeetup(state, payload) {
+      const id = payload.id
+      if (
+        state.user.registeredMeetups.findIndex(meetupId => {
+          return meetupId === id
+        }) >= 0
+      ) {
+        return
+      }
+      state.user.registeredMeetups.push(id)
+      state.user.fbKeys[id] = payload.fbKey
+    },
+    unregisterUserFromMeetup(state, payload) {
+      const registeredMeetups = state.user.registeredMeetups
+      registeredMeetups.splice(registeredMeetups.findIndex(meetup => meetupId === payload), 1)
+      Reflect.deleteProperty(state.user.fbKeys, payload)
+    },
     setLoadedMeetups(state, payload) {
       state.loadedMeetups = payload
     },
@@ -52,6 +69,44 @@ export const store = new Vuex.Store({
     }
   },
   actions: {
+    registerUserForMeetup({ commit, getters }, payload) {
+      commit('setLoading', true)
+      const user = getters.user
+      firebase
+        .database()
+        .ref('/users/' + user.id)
+        .child('/registrations/')
+        .push(payload)
+        .then(data => {
+          commit('setLoading', false)
+          commit('registerUserForMeetup', { id: payload, fbKey: data.key })
+        })
+        .catch(error => {
+          console.log(error)
+          commit('setLoading', false)
+        })
+    },
+    unregisterUserFromMeetup({ commit, getters }, payload) {
+      commit('setLoading', true)
+      const user = getters.user
+      if (user.fbKeys) {
+        return
+      }
+      const fbKey = user.fbKeys[payload]
+      firebase
+        .database()
+        .ref('/users/' + user.id + '/registrations/')
+        .child(fbKey)
+        .remove()
+        .then(() => {
+          commit('setLoading', false)
+          commit('unregisterUserFromMeetup', payload)
+        })
+        .catch(error => {
+          console.log(error)
+          commit('setLoading', false)
+        })
+    },
     loadMeetups({ commit, getters }) {
       commit('setLoading', true)
       //Reach out firebase

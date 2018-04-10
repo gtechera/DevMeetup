@@ -42,16 +42,6 @@
               multi-line
               required
             ></v-text-field>  
-            <v-layout row wrap>
-              <v-flex xs12>
-                <v-date-picker v-model="editedDate" locale="es" width="250"></v-date-picker>
-              </v-flex>
-            </v-layout>
-            <v-layout row wrap>
-              <v-flex xs12>
-                <v-time-picker v-model="editedTime" width="250"></v-time-picker>    
-              </v-flex>
-            </v-layout>
             </v-card-text>
           </v-flex>
         </v-layout>
@@ -77,9 +67,9 @@ export default {
       editDialog: false,
       editedTitle: this.meetup.title,
       editedLocation: this.meetup.location,
-      editedDescription: this.meetup.description,
-      editedDate: this.meetup.date,
-      editedTime: this.meetup.time
+      editedDescription: this.meetup.description //,
+      // editedDate: this.meetup.date,
+      // editedTime: this.meetup.time
     }
   },
   methods: {
@@ -87,9 +77,9 @@ export default {
       if (
         this.editedTitle.trim() === '' ||
         this.editedLocation.trim() === '' ||
-        this.editedDescription.trim() === '' ||
-        this.editedDate === null ||
-        this.editedTime === null
+        this.editedDescription.trim() === '' // ||
+        //this.editedDate === null ||
+        //this.editedTime === null
       ) {
         return
       }
@@ -98,9 +88,9 @@ export default {
         id: this.meetup.id,
         title: this.editedTitle,
         location: this.editedLocation,
-        description: this.editedDescription,
-        date: this.editedDate,
-        time: this.editedTime
+        description: this.editedDescription //,
+        //date: this.editedDate,
+        //time: this.editedTime
       })
     }
   }

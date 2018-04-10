@@ -16,13 +16,15 @@
         </v-card-media>
         <v-card-text>
           <div class="pb-2 teal--text text--darken-2 text-sm-left">{{meetup.date | date}} at {{meetup.time}} hrs. - {{meetup.location}}</div>
-          <div class="text-sm-left">{{meetup.description}}
-          </div>
-          
+          <div class="text-sm-left">
+          <app-edit-meetup-date-dialog :meetup="meetup" v-if="userIsCreator"></app-edit-meetup-date-dialog>
+          <app-edit-meetup-time-dialog :meetup="meetup" v-if="userIsCreator"></app-edit-meetup-time-dialog>
+          </div> 
+          <div class="text-sm-left">{{meetup.description}}</div>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn flat dark class="teal--text text--darken-2"><v-icon left light>arrow_forward</v-icon> Register</v-btn>
+          <app-meetup-register-dialog :meetupId="id"></app-meetup-register-dialog>
         </v-card-actions>
       </v-card>
     </v-flex>

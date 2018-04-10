@@ -65,7 +65,7 @@
         </v-layout>
         <v-layout row wrap class="mb-2">
           <v-flex xs12 sm6 offset-sm3>
-            <v-date-picker v-model="date" locale="es"></v-date-picker>
+            <v-date-picker v-model="date" locale="es" show-current=false></v-date-picker>
             <p>{{date}}</p>
           </v-flex>
         </v-layout>
